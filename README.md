@@ -16,7 +16,7 @@ Args:
 
 Launch `example` for demonstration:
 
-`
+<code>
 	;---- Boesendorfer Grand Piano ----
 	db 67,74,79,86,82,91
 	db 60,67,75,82,79,87
@@ -26,4 +26,4 @@ Launch `example` for demonstration:
 	db 60,67,75,82,79,87
 	db 62,69,74,81,78,86
 	db 55,62,71,79,74,83
-`
+</code>
