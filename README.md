@@ -17,7 +17,7 @@ CLI arguments:
 Launch `example.sh` for demonstration,
 it will print:
 
-  ;---- Boesendorfer Grand Piano ----
+   ;---- Boesendorfer Grand Piano ----
       db 67,74,79,86,82,91
       db 60,67,75,82,79,87
       db 65,72,77,84,81,89
