@@ -3,52 +3,68 @@
 try: import mido
 except: quit("missing module: mido")
 import sys
+import math
 
 
 class MidiToData:
 
 	def main(self):
 
-		if len(sys.argv) < 2:
-			quit("midi2data <filename> <columns> [<offset> = 0] [<track> = 1]")
+		self.parseArgs()
+		self.processFile()
 
-		try: mid = mido.MidiFile(sys.argv[1])
+
+	def parseArgs(self):
+
+		if len(sys.argv) < 2:
+			quit("midi2data <filename> <format> <columns> [<offset> = 0] [<track> = 1]")
+
+		try: self.midiData = mido.MidiFile(sys.argv[1])
 		except: quit("error loading MIDI file")		
 
-		try: self.cols = int(sys.argv[2])
+		self.format = sys.argv[2]
+		if not (self.format == "midi" or self.format == "const"):
+			quit("format must be \"midi\" or \"const\"")
+
+		try: self.cols = int(sys.argv[3])
 		except: print("missing column count")
 
-		try: self.offset = int(sys.argv[3])
+		try: self.offset = int(sys.argv[4])
 		except: offset = 0
 
-		try: selectedTrackNumber = int(sys.argv[4])
-		except: selectedTrackNumber = 1
+		try: self.selectedTrackNumber = int(sys.argv[5])
+		except: self.selectedTrackNumber = 1
+
+
+	def processFile(self):
 
 		isAnyTrackProcessed = False
 		actualTrackNumber = 0
-		for i,track in enumerate(mid.tracks):
-			
+		for i,track in enumerate(self.midiData.tracks):
 			actualTrackNumber += 1
-			if selectedTrackNumber != actualTrackNumber: 
-				continue
 
-			isAnyTrackProcessed = True
-
-			self.prepare(track.name)
-			for message in track:
-				self.process(message)
-			self.post()
+			if self.selectedTrackNumber == actualTrackNumber: 
+				isAnyTrackProcessed = True
+				self.processTrack(track)
 
 		if not isAnyTrackProcessed:
 			quit("invalid track number")
 
 
-	def prepare(self, trackName):
+	def processTrack(self, track):
+
+			self.prepareData(track.name)
+			for message in track: 
+				self.processMessage(message)
+			self.postProcessTrack()
+
+
+	def prepareData(self, trackName):
 		self.columnCounter = 0
 		print("\t;---- " + trackName + " ----")
 
 
-	def process(self, message):
+	def processMessage(self, message):
 
 		if message.type != "note_on": return
 
@@ -57,7 +73,11 @@ class MidiToData:
 		else:
 			print(",",end="")
 
-		print(message.note + self.offset, end="")
+		pitch = message.note + self.offset
+		if self.format == "midi":
+			print(pitch, end="")
+		else:
+			print(self.renderConst(pitch), end="")
 
 		self.columnCounter += 1
 		if (self.columnCounter == self.cols):
@@ -65,9 +85,21 @@ class MidiToData:
 			print("")
 
 
-	def post(self):
+	def postProcessTrack(self):
+
 		if (self.columnCounter != 0):
 			print("")
+
+
+	def renderConst(self, pitch):
+
+		octave = str( math.floor(pitch/12) )
+		note = (
+				"C_","Cs","D_","Ds","E_","F_",
+				"Fs","G_","Gs","A_","As","H_"
+		)[pitch % 12]
+
+		return note + octave
 
 
 if __name__ == "__main__":

@@ -10,6 +10,7 @@ Requires Python3 and `mido` module.
 
 CLI arguments:
  - midi file name (mandatory)
+ - output style: midi/const (mandatorys)
  - number of columns (mandatory)
  - note offset (optional, default: 0)
  - track number (optional, default: 1)
