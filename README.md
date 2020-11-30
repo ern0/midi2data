@@ -2,19 +2,20 @@
 
 This small program creates 
 assembly data dump
-from a single track of a MIDI file,
-extraxting Note On pitch values 
+from a specified track of a MIDI file,
+extracting the Note On pitch values 
 to a list of bytes.
 
-Requires Python3 and module named `mido`.
+Requires Python3 and `mido` module.
 
-Args:
+CLI arguments:
  - midi file name (mandatory)
  - number of columns (mandatory)
  - note offset (optional, default: 0)
  - track number (optional, default: 1)
 
-Launch `example` for demonstration:
+Launch `example.sh` for demonstration,
+it will print:
 
   ;---- Boesendorfer Grand Piano ----
       db 67,74,79,86,82,91
