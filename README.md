@@ -1,5 +1,7 @@
 # midi2data
 
+## 0078-la_peregrinacion
+
 This small program creates 
 assembly data dump
 from a specified track of a MIDI file,
@@ -39,3 +41,8 @@ it will print:
 		db C_6,G_6,Ds7,As7,G_7,Ds8
 		db D_6,A_6,D_7,A_7,Fs7,D_8
 		db G_5,D_6,H_6,G_7,D_7,H_7
+
+## 0079 Tango
+
+Special script for the Tango bytebeat project.
+MIDI to data converter, with compression.
