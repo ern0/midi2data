@@ -18,9 +18,9 @@ class ParseMidi:
 		print("file=" + sys.argv[1], end=" ")
 		print("track=" + self.track.name)
 
-		self.processTrack(True)
-		self.processTrack(False)
-
+		self.processTrack(1)
+		self.processTrack(2)
+		self.processTrack(3)
 
 	def processTrack(self, readable):
 
@@ -29,8 +29,12 @@ class ParseMidi:
 		self.stamp = 0
 		self.column = 0
 
+		if readable == 3: print('"', end="")
+
 		for message in self.track: 
 			self.processMessage(message, readable)
+		
+		if readable == 3: print('"', end="")
 		print()
 
 
@@ -59,17 +63,17 @@ class ParseMidi:
 
 	def newColumn(self, readable):
 		
-		if not readable: return
+		if readable == 3: return
 
 		self.column += 1
 		if self.column < 4: 
-			print("  ", end="")
+			print(" ", end="")
 			return
 
 		self.column = 0
 		print()
 
-	def renderNote(self, pitch, duration, readable = False):
+	def renderNote(self, pitch, duration, readable):
 
 		self.noteCounter += 1
 
@@ -79,19 +83,40 @@ class ParseMidi:
 		else:
 			octave = str( math.floor(pitch/12) )
 			note = (
-					"C_","Cs","D_","Ds","E_","F_",
-					"Fs","G_","Gs","A_","As","H_"
+					"C_","Cs","D_","D#","E_","F_",
+					"F#","G_","Gs","A_","A#","H_"
 			)[pitch % 12]
-		
+
 		ticks = int( duration / 120 )
 
-		if readable:
-			return note + octave + "(" + str(ticks) + ")"
+		if readable == 1:
+			return note + octave + "(" + str(ticks) + ") "
 
+		if pitch is None: 
+			note = 0
 		else:
-			if pitch is None: pitch = 0
-			return str(pitch) + ":" + str(ticks) + " "
+			note = pitch - 81
 
+		value = (((ticks-1) << 4) | note) + 34
+
+		if readable == 2:
+			star = "-"
+			if (value > 127): star = "*"
+			return (
+				str(value).rjust(3) + star 
+				+ str(note).rjust(2) + ":" + str(ticks)
+				+ "  "
+			)
+
+		invalid = False
+		if pitch is not None and note == 0: invalid = True
+		if value < 32: invalid = True
+		if note > 15: invalid = True
+
+		if invalid: 
+			return "[" + str(note) + "]"
+		else:
+			return chr(value)
 
 if __name__ == "__main__":
 	(ParseMidi()).main()
