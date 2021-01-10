@@ -18,9 +18,12 @@ class ParseMidi:
 		print("file=" + sys.argv[1], end=" ")
 		print("track=" + self.track.name)
 
-		self.processTrack(1)
-		self.processTrack(2)
-		self.processTrack(3)
+		if False:
+			self.processTrack(1)
+		else:
+			self.processTrack(1)
+			self.processTrack(2)
+			self.processTrack(3)
 
 		print("note count: " + str(self.noteCounter))
 		print("duration: " + str(self.totalDuration))
@@ -32,15 +35,17 @@ class ParseMidi:
 		self.pitchOffset = 0
 		self.noteCounter = 0
 		self.totalDuration = 0
-		self.stamp = 0
 		self.column = 0
+		self.index = 0
 
-		if self.readable == 3: print('"', end="")
+		if self.readable == 3: 
+			print('"', end="")
 
 		for message in self.track: 
 			self.processMessage(message)
 		
-		if self.readable == 3: print('"', end="")
+		if self.readable == 3: 
+			print('"', end="")
 		print()
 
 
@@ -51,24 +56,30 @@ class ParseMidi:
 
 		if message.type == "note_off":
 			self.processNote(self.last, message)
+			self.index += 1
 
 
 	def processNote(self, on, off):
 
-		duration = off.time
-		onTime = self.stamp + on.time
+		pauseDuration = int(on.time / 120)
+		noteDuration = int(off.time / 120)
 
-		if on.time != 0: 
-			print( self.renderNote(None, on.time), end="")
-			self.newColumn()
-		print( self.renderNote(on.note, duration), end="")
+		if self.index == 19: noteDuration = 6
+
+		if self.readable == 0:
+			print(self.index, on.time, off.time)
+
+		if pauseDuration > 0:
+				self.renderNote(None, pauseDuration)
+				self.newColumn()
+		
+		self.renderNote(on.note, noteDuration)
 		self.newColumn()
-
-		self.stamp += on.time + duration
 
 
 	def newColumn(self):
 		
+		if self.readable == 0: return
 		if self.readable == 3: return
 
 		self.column += 1
@@ -77,12 +88,13 @@ class ParseMidi:
 			return
 
 		self.column = 0
-		print()
+		print("")
 
 
 	def renderNote(self, pitch, duration):
 
 		self.noteCounter += 1
+		self.totalDuration += duration
 
 		if (pitch is None):
 			octave = ""
@@ -94,41 +106,38 @@ class ParseMidi:
 					"F#","G_","Gs","A_","A#","H_"
 			)[pitch % 12]
 
-		ticks = int( duration / 120 )
-		self.totalDuration += ticks
+		if self.readable == 0: return
 
 		if self.readable == 1:
-			return (
-				note 
+			print (
+				str(self.index).rjust(3)
+				+ ":"
+				+ note 
 				+ octave 
 				+ ":" 
-				+ str(ticks) 
-				+ "(" 
 				+ str(duration) 
-				+ ")"
-			)
+			,end="")
+			return
 
-		e = note + octave + ":" + str(ticks)
+		e = note + octave + ":" + str(duration)
 
 		if pitch is None: 
 			note = 0
 		else:
 			note = pitch - 81
 
-		value = (((ticks-1) << 4) | note) + 34
+		value = (((duration-1) << 4) | note) + 34
 
 		if self.readable == 2:
 			star = "-"
 			if (value > 127): star = "*"
-			return (
+			print (
 				str(value).rjust(3) 
 				+ star 
 				+ str(note).rjust(2) 
-				+ ":" + str(ticks)
-				+ "("
-				+ str(self.totalDuration).rjust(3)
-				+ ")"
-			)
+				+ ":" + str(duration)
+			,end="")
+			return
 
 		invalid = False
 		if pitch is not None and note == 0: invalid = True
@@ -136,11 +145,11 @@ class ParseMidi:
 		if note > 15: invalid = True
 		if value == ord("<"): invalid = True
 		if value == ord(">"): invalid = True
-	
+
 		if invalid: 
-			return "\" /* " + chr(value) + " " + e + " */ \""
+			print("\" /* " + chr(value) + " " + e + " */ \"", end="")
 		else:
-			return chr(value)
+			print(chr(value), end="")
 
 if __name__ == "__main__":
 	(ParseMidi()).main()
