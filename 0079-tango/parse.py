@@ -25,8 +25,31 @@ class ParseMidi:
 			self.processTrack(2)
 			self.processTrack(3)
 
-		print("note count: " + str(self.noteCounter))
-		print("duration: " + str(self.totalDuration))
+		print()	
+
+		durationOk = "FAIL"
+		if self.totalDuration == 128:
+			durationOk = "okay"
+
+		print(
+			"duration: " 
+			+ str(self.totalDuration)
+			+ " - "
+			+ durationOk
+		)
+
+		noteCountOk = "FAIL"
+		if self.noteCounter == 61:
+			noteCountOk = "perfect"
+		if self.noteCounter < 61:
+			noteCountOk = "so-so"
+
+		print(
+			"note count: " 
+			+ str(self.noteCounter)
+			+ "/61 - "
+			+ noteCountOk
+		)
 
 
 	def processTrack(self, readableParm):

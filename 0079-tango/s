@@ -1,4 +1,4 @@
 #!/bin/bash
 clear
 
-./parse.py *.mid
+./parse.py ~/Dropbox/studio/from0065/0079-tango_bytebeat/*mid
