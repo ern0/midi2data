@@ -87,7 +87,10 @@ class ParseMidi:
 		pauseDuration = int(on.time / 120)
 		noteDuration = int(off.time / 120)
 
-		if self.index == 19: noteDuration = 6
+		if self.index == 22: 
+			noteDuration = 5
+		if self.index == 23:
+			pauseDuration = 6
 
 		if self.readable == 0:
 			print(self.index, on.time, off.time)
